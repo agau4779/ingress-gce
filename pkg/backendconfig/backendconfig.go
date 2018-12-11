@@ -25,6 +25,7 @@ import (
 
 	"k8s.io/ingress-gce/pkg/annotations"
 	apisbackendconfig "k8s.io/ingress-gce/pkg/apis/backendconfig"
+	backendconfigv1 "k8s.io/ingress-gce/pkg/apis/backendconfig/v1"
 	backendconfigv1beta1 "k8s.io/ingress-gce/pkg/apis/backendconfig/v1beta1"
 	"k8s.io/ingress-gce/pkg/crd"
 )
@@ -35,7 +36,20 @@ var (
 	ErrNoBackendConfigForPort    = errors.New("no BackendConfig name found for service port.")
 )
 
-func CRDMeta() *crd.CRDMeta {
+func CRDMetaV1() *crd.CRDMeta {
+	meta := crd.NewCRDMeta(
+		apisbackendconfig.GroupName,
+		"v1",
+		"BackendConfig",
+		"BackendConfigList",
+		"backendconfig",
+		"backendconfigs",
+	)
+	meta.AddValidationInfo("k8s.io/ingress-gce/pkg/apis/backendconfig/v1.BackendConfig", backendconfigv1.GetOpenAPIDefinitions)
+	return meta
+}
+
+func CRDMetaV1Beta1() *crd.CRDMeta {
 	meta := crd.NewCRDMeta(
 		apisbackendconfig.GroupName,
 		"v1beta1",
