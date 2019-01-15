@@ -59,6 +59,13 @@ const (
 	ZoneKey     = "failure-domain.beta.kubernetes.io/zone"
 	DefaultZone = ""
 
+	// InternalLbKey is the annotation key used to indicate that this Ingress is
+	// L7 Internally Load-balanced if its value is true.
+	// Note that ILB L7 Ingresses require NEGs to be enabled; if the Ingress has
+	// this key enabled, but the service it references has annotations with the
+	// NEGAnnotationKey empty or set to false, it will not work.
+	InternalLbKey = "networking.gke.io/l7-internal-lb"
+
 	// InstanceGroupsAnnotationKey is the annotation key used by controller to
 	// specify the name and zone of instance groups created for the ingress.
 	// This is read only for users. Controller will overrite any user updates.
@@ -95,6 +102,20 @@ func (ing *Ingress) AllowHTTP() bool {
 	v, err := strconv.ParseBool(val)
 	if err != nil {
 		return true
+	}
+	return v
+}
+
+// InternalLb returns a bool representing whether or not this Ingress is using
+// ILB. False by default.
+func (ing *Ingress) InternalLb() bool {
+	val, ok := ing.v[InternalLbKey]
+	if !ok {
+		return false
+	}
+	v, err := strconv.ParseBool(val)
+	if err != nil {
+		return false
 	}
 	return v
 }
